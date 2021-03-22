@@ -30,10 +30,13 @@ function getGastos(idDeputado) {
     callFunc(idDeputado);
     async function callFunc(id) {
       try {
-        const response = await api.get(`deputados/${id}`);
-
+        const response = await api.get(`deputados/${id}/despesas`);
+        for(let i = 0; i < response.data.dados.length; i ++) {
+          response.data.dados[i].idDeputado = id;                             
+        }
         res(response);
       } catch (err) {
+        console.log(err);
         callFunc(id);
       }
     }
@@ -48,8 +51,6 @@ app.get("/gastosPorDeputado", async (req, res) => {
     for (let i = 0; i < deputados.data.dados.length; i++) {
       const gastoDeputado = await getGastos(deputados.data.dados[i].id);
       console.log(`${i + 1} de ${deputados.data.dados.length}`);
-      gastoDeputado.data.dados.idDeputado = deputados.data.dados[i].id;
-
       gastos.dados = gastos.dados.concat(gastoDeputado.data.dados);
       if (i === deputados.data.dados.length - 1) {
         Promise.all(promises).then(() => {
